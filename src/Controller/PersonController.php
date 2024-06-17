@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class PersonController extends AbstractController
 {
@@ -16,7 +15,11 @@ class PersonController extends AbstractController
     public function index(PersonRepository $personRepository, NormalizerInterface $normalizer): Response
     {
         $persons = $personRepository->findAll();
-        $normalized = $normalizer->normalize($persons);
+        $ctx = (new ObjectNormalizerContextBuilder())
+            ->withGroups('show_person')
+            ->toArray();
+
+        $normalized = $normalizer->normalize($persons, null, $ctx);
         $jsonData = json_encode($normalized);
 
         $response = new Response($jsonData, RESPONSE::HTTP_OK, [
@@ -27,18 +30,17 @@ class PersonController extends AbstractController
     }
 
     #[Route('/api/person/{id}', name: 'api_person_with_id', methods: ['GET'])]
-    public function findById(PersonRepository $personRepository, NormalizerInterface $normalizer, int $id, SerializerInterface $serializer): Response
+    public function findById(PersonRepository $personRepository, NormalizerInterface $normalizer, int $id): Response
     {
         $person = $personRepository->find($id);
         $ctx = (new ObjectNormalizerContextBuilder())
             ->withGroups('show_person')
             ->toArray();
             
-        $normalized = $normalizer->normalize($person);
+        $normalized = $normalizer->normalize($person, null, $ctx);
         $jsonData = json_encode($normalized);
-        $jsonSerialized = $serializer->serialize($jsonData, 'json', $ctx);
 
-        $response = new Response($jsonSerialized, RESPONSE::HTTP_OK, [
+        $response = new Response($jsonData, RESPONSE::HTTP_OK, [
             'content-type' => 'application/json'
         ]);
 

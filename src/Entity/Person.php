@@ -17,18 +17,18 @@ class Person
     private ?int $id = null;
     
     #[ORM\Column(length: 255)]
-    #[Groups(['show_person'])]
+    #[Groups(['show_person','show_place'])]
     private ?string $forename = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['show_person'])]
+    #[Groups(['show_person'],'show_place')]
     private ?string $surname = null;
 
     /**
      * @var Collection<int, Place>
      */
     #[ORM\ManyToMany(targetEntity: Place::class, inversedBy: 'likedBy')]
-    #[Groups(['list_places'])]
+    #[Groups(['show_person'])]
     private Collection $placesLiked;
 
     public function __construct()

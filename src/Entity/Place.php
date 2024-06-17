@@ -19,18 +19,18 @@ class Place
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['show_place'])]
+    #[Groups(['show_place','show_person'])]
     private ?string $name = null;
     
     #[ORM\Column(length: 255)]
-    #[Groups(['show_place'])]
+    #[Groups(['show_place'],'show_person')]
     private ?string $address = null;
 
     /**
      * @var Collection<int, Person>
      */
     #[ORM\ManyToMany(targetEntity: Person::class, mappedBy: 'placesLiked')]
-    #[Groups(['list_persons'])]
+    #[Groups(['show_place'])]
     private Collection $likedBy;
 
     public function __construct()
