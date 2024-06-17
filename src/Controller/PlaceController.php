@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Serializer;
-Use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,14 +39,14 @@ class PlaceController extends AbstractController
         $place = $placeRepository->find($id);
         $normalized = $normalizer->normalize($place);
         if ($normalized)
-        $response = new Response(json_encode($normalized), RESPONSE::HTTP_OK, [
-            'content-type' => 'application/json'
-        ]);
+            $response = new Response(json_encode($normalized), RESPONSE::HTTP_OK, [
+                'content-type' => 'application/json'
+            ]);
         else
-        $response = new Response('{"message":"No entries yet!"}', RESPONSE::HTTP_NOT_FOUND , [
-            'content-type' => 'application/json'
-        ]);
-     
+            $response = new Response('{"message":"No entries yet!"}', RESPONSE::HTTP_NOT_FOUND, [
+                'content-type' => 'application/json'
+            ]);
+
 
         return $response;
     }
