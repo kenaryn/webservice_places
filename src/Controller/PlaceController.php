@@ -7,6 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 
 class PlaceController extends AbstractController
 {
@@ -43,5 +45,26 @@ class PlaceController extends AbstractController
      
 
         return $response;
+    }
+
+    #[Route('/api/place/add', name: 'api_place_add', methods: ['POST'])]
+    public function addPlace(EntityManagerInterface $entityManager, NormalizerInterface $normalizer, Request $request): Response
+    {
+        // Retrieve JSON body.
+        $jsonData = $request->getContent();
+
+        // Normalize and decode JSON data to work with a Place class object.
+        $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $place = $serializer->deserialize($jsonData, Place::class, 'json');
+
+        // Save PHP object to the database.
+        $entityManager->persist($place);
+        $entityManager->flush();
+
+
+        $normalized = $normalizer->normalize($place);
+        return new Response(json_encode($normalized), RESPONSE::HTTP_CREATED, [
+            'content-type' => 'application/json'
+        ]);
     }
 }
