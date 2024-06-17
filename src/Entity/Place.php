@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\PlaceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
 #[UniqueEntity('name')]
@@ -16,10 +19,24 @@ class Place
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['show_place'])]
     private ?string $name = null;
-
+    
     #[ORM\Column(length: 255)]
+    #[Groups(['show_place'])]
     private ?string $address = null;
+
+    /**
+     * @var Collection<int, Person>
+     */
+    #[ORM\ManyToMany(targetEntity: Person::class, mappedBy: 'placesLiked')]
+    #[Groups(['list_persons'])]
+    private Collection $likedBy;
+
+    public function __construct()
+    {
+        $this->likedBy = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -46,6 +63,33 @@ class Place
     public function setAddress(string $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Person>
+     */
+    public function getLikedBy(): Collection
+    {
+        return $this->likedBy;
+    }
+
+    public function addLikedBy(Person $likedBy): static
+    {
+        if (!$this->likedBy->contains($likedBy)) {
+            $this->likedBy->add($likedBy);
+            $likedBy->addPlacesLiked($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLikedBy(Person $likedBy): static
+    {
+        if ($this->likedBy->removeElement($likedBy)) {
+            $likedBy->removePlacesLiked($this);
+        }
 
         return $this;
     }

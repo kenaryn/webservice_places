@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Place;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
 
 class PlaceController extends AbstractController
 {
@@ -34,12 +36,19 @@ class PlaceController extends AbstractController
     }
 
     #[Route('/api/place/{id}', name: 'api_place_with_id', methods: ['GET'])]
-    public function findById(PlaceRepository $placeRepository, int $id, NormalizerInterface $normalizer): Response
+    public function findById(PlaceRepository $placeRepository, int $id, NormalizerInterface $normalizer, SerializerInterface $serializer): Response
     {
         $place = $placeRepository->find($id);
+        $ctx = (new ObjectNormalizerContextBuilder())
+            ->withGroups('show_place')
+            ->toArray();
+        
         $normalized = $normalizer->normalize($place);
+        $jsonData = json_encode($normalized);
+        $jsonSerialized = $serializer->serialize($jsonData, 'json', $ctx);
+        
         if ($normalized)
-            $response = new Response(json_encode($normalized), RESPONSE::HTTP_OK, [
+            $response = new Response($jsonSerialized, RESPONSE::HTTP_OK, [
                 'content-type' => 'application/json'
             ]);
         else
