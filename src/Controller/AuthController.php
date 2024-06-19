@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\User;
@@ -12,9 +13,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AuthController extends ApiController
 {
-   public function register(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher)
+   #[Route('/register', name: 'api_register', methods: ['POST'])]
+   public function register(Request $request, EntityManagerInterface $em, \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $passwordHasher)
    {
-      $request = $this-transformJsonBody($request);
+      $request = $this->transformJsonBody($request);
       $username = $request->get('username');
       $password = $request->get('password');
       if (empty($username) || empty($password)) {
@@ -40,7 +42,6 @@ class AuthController extends ApiController
     */
    public function getTokenUser(UserInterface $user, JWTTokenManagerInterface $JWTManager)
    {
-      return new JsonResponse(['token' => $JWTManager->create($user)]);   
+      return new JsonResponse(['token' => $JWTManager->create($user)]);
    }
 }
-?>
