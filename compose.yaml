@@ -5,9 +5,9 @@ services:
       - '8006:443'
     volumes: 
       - .:/var/www/places
-    links:
-      - db:db
-    
+    depends_on:
+      - db
+
   db:
     build: './docker-build/mysql/'
     volumes:
